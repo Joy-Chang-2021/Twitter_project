@@ -10,6 +10,7 @@ Vue.use(VueRouter)
 const authorizeIsAdmin = (to, from, next) => {
   const currentUser = store.state.currentUser
   if (currentUser && currentUser.role === "user") {
+    store.commit('revokeAuthentication')
     return next('/signin')
   }
   next()
@@ -18,6 +19,7 @@ const authorizeIsAdmin = (to, from, next) => {
 const authorizeIsUser = (to, from, next) => {
   const currentUser = store.state.currentUser
   if (currentUser && currentUser.role === "admin") {
+    store.commit('revokeAuthentication')
     return next('/admin/signin')
   }
   next()
