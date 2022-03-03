@@ -101,26 +101,27 @@ export default {
           });
         // 當前端檢查過關：
         this.isProcessing = true;
-        const { data, statusText } = await authorizationAPI.SignIn({
+        const { data } = await authorizationAPI.SignIn({
           account,
           password
         });
         // 當串接失敗
-        if (statusText !== "OK" || data.status !== "success") {
+        if (data.status !== "success") {
           throw new Error(data.message);
         }
         // 當串接成功：
         this.isProcessing = false;
         localStorage.setItem('token', data.token)
         this.$store.commit('setCurrentUser', data.user)
-        this.$router.push('/main')
+        this.$router.push('/users/main')
 
       } catch (error) {
         this.isProcessing = false;
         this.password.text = "";
+        console.log(error)
         Toast.fire({
           icon: "error",
-          title: error,
+          title: error.message,
         });
       }
     },

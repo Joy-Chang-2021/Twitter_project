@@ -1,94 +1,90 @@
 <template>
-  <div class="replyCard-wrapper">
-    <div class="card-left avatar" @click="linkedUser(userId)">
-      <img class="avatar" :src="avatar | emptyImage" />
-    </div>
-    <div class="card-right">
-      <div class="card-head">
-        <h5 class="card-name" @click="linkedUser(userId)">
-          {{ userName }}
-        </h5>
-        <h5 class="card-account">
-          {{ userAccount | accountTag }}
-        </h5>
-        <span>．</span>
-        <h5 class="card-time">
-          {{ createdAt | fromNow }}
-        </h5>
+  <div>
+    <div class="self-reply" v-for="reply in replys" :key="reply.id">
+      <div class="replyCard-wrapper">
+        <div class="card-left avatar" @click="linkedUser(reply.UserId)">
+          <img class="avatar" :src="reply.User.avatar | emptyImage" />
+        </div>
+        <div class="card-right">
+          <div class="card-head">
+            <h5 class="card-name" @click="linkedUser(reply.UserId)">
+              {{ reply.User.name }}
+            </h5>
+            <h5 class="card-account">
+              {{ reply.User.account | accountTag }}
+            </h5>
+            <span>．</span>
+            <h5 class="card-time">
+              {{ reply.createdAt | fromNow }}
+            </h5>
+          </div>
+          <h5>
+            <span>回覆</span>
+            <span class="card-replyer" @click="linkedUser(reply.Tweet.User.id)">
+              {{ reply.Tweet.User.account | accountTag }}
+            </span>
+          </h5>
+          <p>{{ reply.comment }}</p>
+        </div>
       </div>
-      <h5>
-        <span>回覆</span>
-        <span class="card-replyer" @click="linkedUser(targetUserId)">
-          {{ targetAccount | accountTag }}
-        </span>
-      </h5>
-      <p>{{ comment }}</p>
     </div>
   </div>
 </template>
 
 <script>
-import { fromNowFilter, accountTagFilter, emptyImageFilter } from "../utils/mixins";
+import {
+  fromNowFilter,
+  accountTagFilter,
+  emptyImageFilter,
+} from "../utils/mixins";
 import { mapState } from "vuex";
+import usersAPI from "../apis/users";
+import { Toast } from "../utils/helpers";
 
 export default {
   mixins: [fromNowFilter, accountTagFilter, emptyImageFilter],
-  props: {
-    // 每筆回覆貼文的資料
-    replyCard: {
-      type: Object,
-      required: true,
-    },
-  },
+
   data() {
     return {
-      // 被回覆的對象
-      targetAccount: "",
-      targetUserId: 0,
-      // 此卡片的其他資料
-      tweetId: 0,
-      userId: 0,
-      comment: "",
-      createdAt: "",
-      userName: "",
-      userAccount: "",
-      avatar: "",
+      replys: [],
     };
   },
   computed: {
     ...mapState(["currentUser"]),
   },
   methods: {
-    fetchReplyCard() {
-      // 被回覆的對象 // TODO: 個人頁面待 API 加入此值
-      this.targetAccount = this.replyCard.Tweet.User.account;
-      this.targetUserId = this.replyCard.Tweet.UserId;
-      // 此卡片的其他資料
-      const { id, comment, createdAt, UserId, User } = this.replyCard;
-      this.tweetId = id;
-      this.userId = UserId;
-      this.comment = comment;
-      this.createdAt = createdAt;
-      this.userName = User.name;
-      this.userAccount = User.account;
-      this.avatar = User.avatar;
-    },
-    linkedUser(userId) {
-      if (userId === this.currentUser.id) {
-        this.$router.push({ name: "userSelf" });
-      } else {
-        this.$router.push({ name: "user", params: { id: userId } });
+  async fetchUserReplies(userId) {
+      try {
+        const response = await usersAPI.getUserReplies({
+          userId:
+            this.$route.name === "reply"
+              ? this.currentUser.id
+              : userId,
+        });
+        this.replys = response.data;
+      } catch (error) {
+        Toast.fire({
+          icon: "error",
+          title: "無法取得所有回文資料，請稍後再試",
+        });
       }
     },
+
+    linkedUser(userId) {
+      if (userId === this.currentUser.id) {
+        this.$router.push({ name: "selfTweet" });
+      } else {
+        this.$router.push({ name: "otherTweet", params: { id: userId } });
+      }
+    },
+    
   },
   created() {
-    this.fetchReplyCard();
+    this.fetchUserReplies(this.$route.params.id);
   },
-  watch: {
-    replyCard(newValue) {
-      this.replyCard = newValue;
-      this.fetchReplyCard();
-    },
+  beforeRouteUpdate(to, from, next) {
+    this.fetchUserReplies(to.params.id);
+    next();
   },
 };
 </script>

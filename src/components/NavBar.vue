@@ -2,13 +2,13 @@
   <div class="navBar-wrapper">
     <div class="container">
       <div class="logoContainer">
-        <router-link to="/main">
+        <router-link to="/users/main">
           <img class="logo" alt="" />
         </router-link>
       </div>
       <div class="content">
         <div class="homeTab">
-          <router-link class="navItem" to="/main">
+          <router-link class="navItem" to="/users/main">
             <div class="icon">
               <img class="home" alt="" />
             </div>
@@ -16,7 +16,7 @@
           </router-link>
         </div>
         <div class="selfTab">
-          <router-link class="navItem" to="/users/self">
+          <router-link class="navItem" to="/users/self/tweet">
             <div class="icon">
               <img class="person" alt="" />
             </div>
@@ -55,7 +55,7 @@ import { mapState } from "vuex";
 
 export default {
   computed: {
-    ...mapState(["isAuthenticated"]),
+    ...mapState(["currentUser","isAuthenticated"]),
   },
   methods: {
     logout() {

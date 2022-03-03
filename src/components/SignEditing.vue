@@ -208,7 +208,7 @@ export default {
         this.isProcessing = false;
         Toast.fire({
           icon: "error",
-          title: error,
+          title: error.message,
         });
       }
     },
@@ -261,7 +261,7 @@ export default {
         this.isProcessing = false;
         Toast.fire({
           icon: "error",
-          title: error,
+          title: error.message,
         });
       }
     },

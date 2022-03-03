@@ -13,6 +13,7 @@
 }
 
 .adminuser{
+    font-size: 15px;
     &__tweets{
     width: 100%;
     max-width: 245px;
@@ -21,11 +22,19 @@
     &__avatar{
     display: flex;
     justify-content: center;
-    transform: scale(2);
-    margin-top: 68px;
+    height: 140px;
+    position: relative;
     }
-    &__avatar img{
-       border: 2px solid white;
+    &__avatar .cover {
+    width: 100%;
+    height: 100%;
+    border-radius: 15px 15px 0 0;
+    }
+    &__avatar .avatar {
+    transform: scale(2);
+    border: 2px solid white;
+    position: absolute;
+    bottom: -6px;
     }
     &__info {
     width: 100%;
@@ -34,6 +43,7 @@
     height: 174px;
     display: flex;
     flex-direction: column;
+    border-radius: 0 0 14px 14px;
     }
     &__title {
     display: flex;
@@ -41,26 +51,54 @@
     justify-content: center;
     align-items: center;
     padding-top: 33px;
+    font-weight: 900;
+    line-height: 22px;
     }
     &__subtitle {
     color: #{$tweet-grey};
+    line-height: 21px;
     }
     &__heart {
     display: flex;
     justify-content: center;
-    margin-top: 18px;
+    align-items: center;
+    margin-top: 15px;
     }
     &__heart01 , &__heart02{
     display: flex;
+    align-items: center;
     padding: 0px 20px;
+    span {
+        color: #{$black};
+        font-weight: 700;
+        font-size: 15px;
+    }
+    }
+    &__heart01 img {
+        margin-right: 7px;
+        width: 20px;
+        height: 20px;
+        cursor: unset;
+    }
+    &__heart02 img {
+        margin-right: 7px;
+        width: 20px;
+        height: 18px;
+        cursor: unset;
     }
     &__followinfo {
     margin-top: 18px;
     display: flex;
     justify-content: center;
+    font-size: 14px;
+    color: #{$tweet-grey};
     }
     &__followinfo01 , &__followinfo02{
     display: flex;
     padding: 0px 5px;
+    span {
+        color: #{$black};
+        font-weight: 700;
+    }
     }
 }

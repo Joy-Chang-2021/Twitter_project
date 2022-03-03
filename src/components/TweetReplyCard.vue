@@ -1,5 +1,5 @@
 <template>
-  <div class="replyCard-wrapper">
+  <div class="tweetReplyCard-wrapper">
     <div class="card-left avatar" @click="linkedUser(userId)">
       <img class="avatar" :src="avatar | emptyImage" />
     </div>
@@ -28,7 +28,11 @@
 </template>
 
 <script>
-import { fromNowFilter, accountTagFilter, emptyImageFilter } from "../utils/mixins";
+import {
+  fromNowFilter,
+  accountTagFilter,
+  emptyImageFilter,
+} from "../utils/mixins";
 import { mapState } from "vuex";
 
 export default {
@@ -69,20 +73,20 @@ export default {
       this.targetAccount = this.replyTarget.account;
       this.targetUserId = this.replyTarget.id;
       // 此卡片的其他資料
-      const { id, comment, createdAt, UserId, User } = this.replyCard
-      this.tweetId = id
-      this.userId = UserId
-      this.comment = comment
-      this.createdAt = createdAt
-      this.userName = User.name
-      this.userAccount = User.account
-      this.avatar = User.avatar
+      const { id, comment, createdAt, UserId, User } = this.replyCard;
+      this.tweetId = id;
+      this.userId = UserId;
+      this.comment = comment;
+      this.createdAt = createdAt;
+      this.userName = User.name;
+      this.userAccount = User.account;
+      this.avatar = User.avatar;
     },
     linkedUser(userId) {
       if (userId === this.currentUser.id) {
-        this.$router.push({ name: "userSelf" });
+        this.$router.push({ name: "self" });
       } else {
-        this.$router.push({ name: "user", params: { id: userId } });
+        this.$router.push({ name: "other", params: { id: userId } });
       }
     },
   },
@@ -90,14 +94,14 @@ export default {
     this.fetchReplyCard();
   },
   watch: {
-    replyCard (newValue) {
+    replyCard(newValue) {
       this.replyCard = newValue;
       this.fetchReplyCard();
     },
-    replyTarget (newValue) {
+    replyTarget(newValue) {
       this.replyTarget = newValue;
       this.fetchReplyCard();
-    }
-  }
-}
+    },
+  },
+};
 </script>

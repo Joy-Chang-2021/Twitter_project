@@ -10,7 +10,7 @@ Vue.use(VueRouter)
 const authorizeIsAdmin = (to, from, next) => {
   const currentUser = store.state.currentUser
   if (currentUser && currentUser.role === "user") {
-    return next('/404')
+    return next('/signin')
   }
   next()
 }
@@ -18,9 +18,9 @@ const authorizeIsAdmin = (to, from, next) => {
 const authorizeIsUser = (to, from, next) => {
   const currentUser = store.state.currentUser
   if (currentUser && currentUser.role === "admin") {
-    return next('/404')
+    return next('/admin/signin')
   }
-    next()
+  next()
 }
 
 const routes = [
@@ -39,36 +39,93 @@ const routes = [
     name: 'sign-up',
     component: () => import('../views/SignUp.vue')
   },
+
   {
-    path: '/main',
-    name: 'main',
-    component: Main,
-    beforeEnter: authorizeIsUser
+    path: '/users',
+    name: 'users',
+    component: () => import('../views/Users.vue'),
+    beforeEnter: authorizeIsUser,
+    children: [
+      {
+        path: "",
+        redirect: { name: "main" }
+      },
+      {
+        path: 'main',
+        name: 'main',
+        component: Main,
+      },
+      {
+        path: 'tweet/:id',
+        name: 'tweet',
+        component: () => import('../views/Tweet.vue'),
+      },
+      {
+        path: "self",
+        name: "self",
+        component: () => import('../views/UserSelf.vue'),
+        children: [
+          {
+            path: "",
+            redirect: { name: "selfTweet" }
+          },
+          {
+            path: "tweet",
+            name: "selfTweet",
+            component: () => import('../components/TweetCardSelf.vue'),
+          },
+          {
+            path: "reply",
+            name: "reply",
+            component: () => import('../components/ReplyCardSelf.vue'),
+          },
+          {
+            path: "like",
+            name: "like",
+            component: () => import('../components/LikeCardSelf.vue'),
+          },
+        ]
+      },
+      {
+        path: ":id",
+        name: "other",
+        component: () => import('../views/UserOther.vue'),
+        children: [
+          {
+            path: "",
+            redirect: { name: "otherTweet" }
+          },
+          {
+            path: "tweet",
+            name: "otherTweet",
+            component: () => import('../components/TweetCardSelf.vue'),
+          },
+          {
+            path: "reply",
+            name: "otherReply",
+            component: () => import('../components/ReplyCardSelf.vue'),
+          },
+          {
+            path: "like",
+            name: "otherLike",
+            component: () => import('../components/LikeCardSelf.vue'),
+          },
+          {
+            path: 'followers',
+            name: 'followers',
+            component: () => import('../components/FollowerCards.vue')
+          },
+          {
+            path: 'followings',
+            name: 'followings',
+            component: () => import('../components/FollowingCards.vue')
+          }
+        ]
+      }
+    ]
   },
-  {
-    path: '/users/self',
-    name: 'userSelf',
-    component: () => import('../views/UserSelf.vue'),
-    beforeEnter: authorizeIsUser
-  },
-  {
-    path: '/users/:id',
-    name: 'user',
-    component: () => import('../views/UserOther.vue'),
-    beforeEnter: authorizeIsUser
-  },
-  {
-    path: '/users/:id/followers',
-    name: 'users-followers',
-    component: () => import('../views/UserFollowers'),
-    beforeEnter: authorizeIsUser
-  },
-  {
-    path: '/users/:id/followings',
-    name: 'users-followings',
-    component: () => import('../views/UserFollowings'),
-    beforeEnter: authorizeIsUser
-  },
+
+
   {
     path: '/admin/signin',
     name: 'admin-signin',
@@ -93,12 +150,6 @@ const routes = [
     beforeEnter: authorizeIsUser
   },
   {
-    path: '/tweets/:id',
-    name: 'tweet',
-    component: () => import('../views/Tweet.vue'),
-    beforeEnter: authorizeIsUser
-  },
-  {
     path: '*',
     name: 'not-found',
     component: NotFound
@@ -109,7 +160,7 @@ const router = new VueRouter({
   routes
 })
 
-router.beforeEach(async (to, from, next) => {
+/*router.beforeEach(async (to, from, next) => {
   // 從 localStorage 和 vuex 取出 token
   const token = localStorage.getItem('token')
   const tokenInStore = store.state.token
@@ -121,11 +172,11 @@ router.beforeEach(async (to, from, next) => {
     isAuthenticated = await store.dispatch('fetchCurrentUser')
   }
   // 對於不需要驗證 token 的頁面
-  const pathsWithoutAuthentication = ['sign-up', 'sign-in','admin-signin']
+  const pathsWithoutAuthentication = ['sign-up', 'sign-in', 'admin-signin']
 
   // 如果 token 無效且進入需要驗證的頁面則轉址到登入頁
   if (
-    !isAuthenticated && 
+    !isAuthenticated &&
     !pathsWithoutAuthentication.includes(to.name)
   ) return next('/signin')
 
@@ -133,9 +184,9 @@ router.beforeEach(async (to, from, next) => {
   if (
     isAuthenticated &&
     pathsWithoutAuthentication.includes(to.name)
-  ) return next('/main')
+  ) return next('/users/main')
 
   next()
-})
+})**/
 
 export default router

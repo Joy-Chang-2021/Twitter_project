@@ -6,7 +6,7 @@
       </button>
       <div class="name-wrapper">
         {{ userData.name }}
-        <div class="tweetCount">{{ tweets.length }}推文</div>
+        <div class="tweetCount">{{ userData.tweetCount }}推文</div>
       </div>
     </div>
     <div class="user-wrapper">
@@ -54,16 +54,18 @@
         <div class="introduce">{{ userData.introduction }}</div>
         <div class="follow">
           <router-link
-            :to="{ name: 'users-followings', params: { id: userData.id } }"
+            :to="{ name: 'followings', params: { id: userData.id }}"
             class="strong"
           >
             {{ userData.followingCount | numberFormatTC }}個
           </router-link>
-          追隨中<router-link
-            :to="{ name: 'users-followers', params: { id: userData.id } }"
+          追隨中
+          <router-link
+            :to="{ name: 'followers', params: { id: userData.id }}"
             class="strong2"
-            >{{ userData.follwerCount | numberFormatTC }}位</router-link
-          >追隨者
+            >{{ userData.follwerCount | numberFormatTC }}位
+            </router-link>
+          追隨者
         </div>
       </div>
     </div>
@@ -99,11 +101,8 @@ export default {
         followingCount: 0,
         follwerCount: 0,
         isFollowed: "",
+        tweetCount:0
       }),
-    },
-    tweets: {
-      type: Array,
-      require: true,
     },
     whichPage: {
       type: Boolean,
@@ -123,6 +122,7 @@ export default {
         followingCount: 0,
         follwerCount: 0,
         isFollowed: "",
+        tweetCount: 0
       },
       isNotice: true,
       isProcessing: false,
@@ -151,6 +151,7 @@ export default {
       this.userData.followingCount = this.currentUserData.followingCount;
       this.userData.follwerCount = this.currentUserData.follwerCount;
       this.userData.isFollowed = this.currentUserData.isFollowed;
+      this.userData.tweetCount = this.currentUserData.tweetCount;
     },
     showEditModal() {
       // 打開 modal

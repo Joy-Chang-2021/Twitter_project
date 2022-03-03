@@ -7,6 +7,7 @@ $logo: url("./assets/icon/Logo.png");
 $arrow: url("./assets/icon/arrow.png");
 $cross-or: url("./assets/icon/cross-or.png");
 $cross-wt: url("./assets/icon/cross-wt.png");
+$cross-gr: url("./assets/icon/cross-gr.png");
 $heartActive: url("./assets/icon/heartActive.png");
 $heart: url("./assets/icon/heart.png");
 $home: url("./assets/icon/home.png");
@@ -21,6 +22,7 @@ $reply: url("./assets/icon/reply.png");
 $setting: url("./assets/icon/setting.png");
 $settingActive: url("./assets/icon/settingActive.png");
 $uploadPhoto: url("./assets/icon/uploadPhoto.png");
+$spinner: url("./assets/spinner.png");
 
 // 登入、管理者登入、註冊頁面使用
 .logo-big {
@@ -148,9 +150,34 @@ $uploadPhoto: url("./assets/icon/uploadPhoto.png");
   cursor: pointer;
 }
 
+.cross-grey {
+  width: 15px;
+  height: 15px;
+  content: #{$cross-gr};
+  cursor: pointer;
+}
+
 .camera {
   width: 25px;
   height: 23px;
   content: #{$uploadPhoto};
   cursor: pointer;
+}
+
+.spinner {
+  display: block;
+  width: 20px;
+  height: 20px;
+  margin: 20px auto;
+  content: #{$spinner};
+  animation: rotation 2s infinite linear;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }

@@ -79,11 +79,12 @@ export default new Vuex.Store({
   actions: {
     async fetchCurrentUser({ state, commit }) {
       try {
-        const response = state.currentUser.role === "user" ?
-          await authorizationAPI.getCurrentUser() :
-          await authorizationAPI.getCurrentAdminUser()
-        // TODO: check response
-        console.log(response)
+        let response
+        if (state.currentUser.role === "user") {
+          response = await authorizationAPI.getCurrentUser()
+        } else if (state.currentUser.role === "admin") {
+          response = await authorizationAPI.getCurrentAdminUser()
+        }         
         commit("setCurrentUser", response)
         return true
       } catch (error) {

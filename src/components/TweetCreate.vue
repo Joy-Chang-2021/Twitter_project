@@ -70,7 +70,7 @@ export default {
         this.isProcessing = false
         this.hideNewCreateModal()
         this.$store.commit("passTweetCreate", response.data)
-        if (this.$route.name !== "main") this.$router.push("/main")
+        if (this.$route.name !== "main") this.$router.push("/users/main")
       } catch (error) {
         this.isProcessing = false
         Toast.fire({

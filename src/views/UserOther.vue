@@ -1,108 +1,71 @@
 <template>
-  <div class="app-tripple-column">
-    <div class="left-container"><NavBar /></div>
-    <div class="middle-container">
-      <UserCard
-        :tweets="tweets"
-        :currentUserData="currentUserData"
-        :whichPage="whichPage"
-      />
-      <div class="switchTabs">
-        <div
-          class="tweetTab"
-          :class="[{ activeTabs: tabNow === 1 }]"
-          @click="tabNow = 1"
-        >
-          推文
-        </div>
-        <div
-          class="replyTab"
-          :class="[{ activeTabs: tabNow === 2 }]"
-          @click="tabNow = 2"
-        >
-          推文與回覆
-        </div>
-        <div
-          class="likeTab"
-          :class="[{ activeTabs: tabNow === 3 }]"
-          @click="tabNow = 3"
-        >
-          喜歡的內容
-        </div>
+  <div>
+    <UserCard
+      :currentUserData="currentUserData"
+      :whichPage="whichPage"
+    />
+    <div class="switchTabs">
+      <div
+        class="tweetTab"
+        :class="[{ activeTabs: tabNow === 1 }]"
+        @click="$router.push({ name: 'otherTweet',params: { id: currentUserData.id }}),tabNow = 1"
+      >
+        推文
       </div>
-      <div class="self-tweet-wrapper" v-if="tabNow === 1">
-        <div class="self-tweet" v-for="tweet in tweets" :key="tweet.id">
-          <TweetCard :tweet-card="tweet" />
-        </div>
+      <div
+        class="replyTab"
+        :class="[{ activeTabs:tabNow === 2 }]"
+        @click="$router.push({ name: 'otherReply',params: { id: currentUserData.id }}),tabNow = 2"
+      >
+        推文與回覆
       </div>
-      <div class="self-reply-wrapper" v-else-if="tabNow === 2">
-        <div class="self-reply" v-for="reply in replys" :key="reply.id">
-          <ReplyCardSelf :replyCard="reply" />
-        </div>
-      </div>
-      <div class="self-like-wrapper" v-else>
-        <div
-          class="self-like"
-          v-for="likeTweet in likeTweets"
-          :key="likeTweet.id"
-        >
-          <TweetCard :tweet-card="likeTweet" />
-        </div>
+      <div
+        class="likeTab"
+        :class="[{ activeTabs: tabNow === 3 }]"
+        @click="$router.push({ name: 'otherLike',params: { id: currentUserData.id }}),tabNow = 3"
+      >
+        喜歡的內容
       </div>
     </div>
-    <div class="right-container"><Popular /></div>
+    <router-view />
   </div>
 </template>
 <script>
-import NavBar from "./../components/NavBar";
-import Popular from "./../components/Popular";
 import UserCard from "./../components/UserCard";
-import TweetCard from "../components/TweetCard.vue";
-import ReplyCardSelf from "../components/ReplyCardSelf.vue";
 import usersAPI from "./../apis/users";
 import { Toast } from "../utils/helpers";
 
-import { mapState } from "vuex";
-
 export default {
   components: {
-    NavBar,
-    Popular,
     UserCard,
-    TweetCard,
-    ReplyCardSelf,
   },
   data() {
     return {
-      tweets: [],
-      likeTweets: [],
-      replys: [],
+      whichPage: false, //true代表個人false代表他人
+      tabNow: 1, //1推文 2回復 3喜歡
       currentUserData: {
-        id: -1,
+        id: 0,
         account: "",
         name: "",
         email: "",
         avatar: "",
         cover: "",
         introduction: "",
-        followingCount: -1,
-        follwerCount: -1,
-        isFollowed: "",
+        followingCount: 0,
+        follwerCount: 0,
+        tweetCount: 0,
+        isFollowed:false
       },
-      whichPage: false, //true代表個人false代表他人
-      tabNow: 1, //1推文 2回復 3喜歡
     };
   },
-  computed: {
-    ...mapState(["currentUser"]),
-  },
+  
   methods: {
     async fetchUser(userId) {
       try {
         const response = await usersAPI.getUser({
-          userId: userId,
+          userId: userId?userId:this.$route.params.id,
         });
-
+        
         this.currentUserData = {
           id: response.data.id,
           account: response.data.account,
@@ -113,7 +76,8 @@ export default {
           introduction: response.data.introduction,
           followingCount: response.data.followingCount,
           follwerCount: response.data.follwerCount,
-          isFollowed: response.data.isFollowed,
+          tweetCount:response.data.tweetCount,
+          isFollowed:response.data.isFollowed
         };
       } catch (error) {
         Toast.fire({
@@ -122,64 +86,27 @@ export default {
         });
       }
     },
-    async fetchLikeTweets(userId) {
-      try {
-        const response = await usersAPI.getUserLikes({
-          userId: userId,
-        });
-        const tweets = response.data.map((like) => like.Tweet);
-        for (let i = 0; i < tweets.length; i++) {
-          tweets[i].likeCount = tweets[i].Likes.length;
-          tweets[i].replyCount = tweets[i].Replies.length;
-          tweets[i].isLiked = true;
-        }
-        this.likeTweets = tweets;
-      } catch (error) {
-        Toast.fire({
-          icon: "error",
-          title: "無法取得最愛貼文資料，請稍後再試",
-        });
-      }
-    },
-    async fetchUserTweets(userId) {
-      try {
-        const response = await usersAPI.getUserTweets({
-          userId: userId,
-        });
-        this.tweets = response.data;
-      } catch (error) {
-        Toast.fire({
-          icon: "error",
-          title: "無法取得所有貼文資料，請稍後再試",
-        });
-      }
-    },
-    async fetchUserReplies(userId) {
-      try {
-        const response = await usersAPI.getUserReplies({
-          userId: userId,
-        });
-        this.replys = response.data;
-      } catch (error) {
-        Toast.fire({
-          icon: "error",
-          title: "無法取得所有回文資料，請稍後再試",
-        });
-      }
-    },
   },
   created() {
-    this.fetchUser(this.$route.params.id);
-    this.fetchLikeTweets(this.$route.params.id);
-    this.fetchUserTweets(this.$route.params.id);
-    this.fetchUserReplies(this.$route.params.id);
+    this.fetchUser();
+  },
+  watch: {
+    currentUser(newValue) {
+      // 監控 UserCardEdit 是否修改 vuex 資料
+      // 將新資料覆蓋進 data 中渲染畫面
+      this.currentUserData = {
+        ...this.currentUserData,
+        ...newValue,
+      };
+    },
   },
   beforeRouteUpdate(to, from, next) {
     this.fetchUser(to.params.id);
-    this.fetchLikeTweets(to.params.id);
-    this.fetchUserTweets(to.params.id);
-    this.fetchUserReplies(to.params.id);
     next();
   },
+  
+    
+    
+  
 };
 </script>

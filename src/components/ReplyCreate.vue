@@ -1,17 +1,19 @@
 <template>
-  <modal name="replyCreate"
+  <modal
+    name="replyCreate"
     classes="replyCreate-model"
     :adaptive="true"
-    :width="600" :minHeight="450"
-    :clickToClose="false">
+    :width="600"
+    :minHeight="450"
+    :clickToClose="false"
+  >
     <div class="replyCreate-wrapper">
       <div class="replyCreate-head">
-        <img class="cross-orange" @click="hideReplyModal()">
+        <img class="cross-orange" @click="hideReplyModal()" />
       </div>
       <div class="replyCreate-body">
         <div class="target-image">
-          <img class="avatar"
-            :src="tweetReplyTarget.avatar | emptyImage">
+          <img class="avatar" :src="tweetReplyTarget.avatar | emptyImage" />
           <span></span>
         </div>
         <div class="target-tweet">
@@ -22,13 +24,15 @@
             <h5>{{ tweetReplyTarget.createdAt | fromNow }}</h5>
           </div>
           <p>{{ tweetReplyTarget.description }}</p>
-          <h5>回覆給 <strong>{{ tweetReplyTarget.account | accountTag }}</strong></h5>
+          <h5>
+            回覆給 <strong>{{ tweetReplyTarget.account | accountTag }}</strong>
+          </h5>
         </div>
         <div class="replyer-image">
-          <img class="avatar" :src="currentUser.avatar | emptyImage">
+          <img class="avatar" :src="currentUser.avatar | emptyImage" />
         </div>
         <div class="replyer-tweet">
-          <textarea 
+          <textarea
             v-model="comment"
             placeholder="有什麼新鮮事？"
             focus
@@ -39,41 +43,48 @@
       <button
         class="btn active"
         @click="submitReply()"
-        :disabled="isProcessing">回覆</button>
+        :disabled="isProcessing"
+      >
+        回覆
+      </button>
     </div>
   </modal>
 </template>
 
 <script>
-import tweetsAPI from "../apis/tweets"
+import tweetsAPI from "../apis/tweets";
 import { mapState } from "vuex";
-import { fromNowFilter, accountTagFilter, emptyImageFilter } from '../utils/mixins'
-import { Toast } from "../utils/helpers"
+import {
+  fromNowFilter,
+  accountTagFilter,
+  emptyImageFilter,
+} from "../utils/mixins";
+import { Toast } from "../utils/helpers";
 
 export default {
   mixins: [fromNowFilter, accountTagFilter, emptyImageFilter],
   computed: {
     ...mapState(["currentUser", "tweetReplyTarget"]),
   },
-  data () {
+  data() {
     return {
       replyTarget: {},
       paramsId: 0,
       comment: "",
       wordLimit: "",
-      isProcessing: false
-    }
+      isProcessing: false,
+    };
   },
   methods: {
     async submitReply() {
       try {
         if (this.comment.length < 1) {
-          return this.wordLimit = "內容不可空白"
+          return (this.wordLimit = "內容不可空白");
         } else if (this.comment.length > 140) {
-          return this.wordLimit = "字數不可超過140字"
+          return (this.wordLimit = "字數不可超過140字");
         }
-        this.wordLimit = ""
-        this.isProcessing = true
+        this.wordLimit = "";
+        this.isProcessing = true;
         const { statusText, data } = await tweetsAPI.addNewReply({
           tweetId: this.tweetReplyTarget.id,
           comment: this.comment
@@ -82,24 +93,24 @@ export default {
         this.isProcessing = false
         this.$store.commit("passReplyCreate", data.reply)
         this.hideReplyModal()
-        if (this.$route.name === "main") this.$router.push(`/tweets/${data.reply.TweetId}`)
+        if (this.$route.name === "main") this.$router.push(`/users/tweet/${data.reply.TweetId}`)
       } catch (error) {
-        this.isProcessing = false
+        this.isProcessing = false;
         Toast.fire({
           icon: "error",
-          title: error.message
-        })
+          title: error.message,
+        });
       }
     },
     hideReplyModal() {
       this.$modal.hide("replyCreate");
-      this.comment = ""
-      this.wordLimit = ""
+      this.comment = "";
+      this.wordLimit = "";
     },
   },
   created() {
-    const { id } = this.$route.params
-    this.paramsId = Number(id)
+    const { id } = this.$route.params;
+    this.paramsId = Number(id);
   },
-}
+};
 </script>

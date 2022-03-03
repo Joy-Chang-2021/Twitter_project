@@ -126,7 +126,7 @@ export default {
         this.password.text = "";
         Toast.fire({
           icon: "error",
-          title: error,
+          title: error.message,
         });
       }
     },

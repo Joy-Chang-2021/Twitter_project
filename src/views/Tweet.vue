@@ -1,9 +1,7 @@
 <template>
-  <div class="app-tripple-column">
-    <div class="left-container">
-      <NavBar />
-    </div>
-    <div class="middle-container">
+  <div>
+    <img v-if="isLoading" class="spinner">
+    <div v-else>
       <div class="tweet-wrapper">
         <div class="tweet-title">
           <img @click="$router.back()" class="arrow" />
@@ -48,19 +46,14 @@
         v-for="replyCard in replyCards"
         :key="replyCard.id"
       >
-        <ReplyCard :reply-target="user" :reply-card="replyCard" />
+        <TweetReplyCard :reply-target="user" :reply-card="replyCard" />
       </div>
-    </div>
-    <div class="right-container">
-      <Popular />
     </div>
   </div>
 </template>
 
 <script>
-import NavBar from "../components/NavBar.vue";
-import ReplyCard from "../components/ReplyCard.vue";
-import Popular from "../components/Popular.vue";
+import TweetReplyCard from "../components/TweetReplyCard.vue";
 import tweetsAPI from "../apis/tweets"
 import { mapState } from "vuex"
 import { accountTagFilter, timeFormatFilter, emptyImageFilter } from "../utils/mixins";
@@ -69,9 +62,7 @@ import { Toast } from "../utils/helpers"
 export default {
   name: "Tweet",
   components: {
-    NavBar,
-    ReplyCard,
-    Popular,
+    TweetReplyCard,
   },
   mixins: [accountTagFilter, timeFormatFilter, emptyImageFilter],
   computed: {
@@ -122,7 +113,6 @@ export default {
       }
     },
     afterSubmitReplyCreate(data) {
-      // TODO: 檢查 !
       this.replyCards.unshift({
         comment: data.comment,
         id: data.id, 
@@ -171,7 +161,11 @@ export default {
       }
     },
     linkedUser(userId) {
-      this.$router.push({ name: "user", params: { id: userId } });
+       if (userId === this.currentUser.id) {
+        this.$router.push({ name: "self" });
+      } else {
+        this.$router.push({ name: "other", params: { id: userId } });
+      }
     },
     showReplyModal() {
       this.$modal.show("replyCreate");

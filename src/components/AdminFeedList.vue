@@ -15,19 +15,20 @@
         <h5 class="card-time">
           {{ createdAt | fromNow }}
         </h5>
-        <!-- 取消ＩＣＯＮ -->
         <div class="card-cancel">
-            <div class="cross-orange"></div>
+          <img @click="deleteCard(id)" class="cross-grey">
         </div>
       </div>
-      <div>
-        {{ description }}
+      <div class="card-description">
+        {{ description | wordLimit }}
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import adminAPI from '../apis/admin'
+import { Toast } from '../utils/helpers'
 import { fromNowFilter, accountTagFilter, emptyImageFilter } from '../utils/mixins'
 export default {
   mixins: [fromNowFilter, accountTagFilter, emptyImageFilter],
@@ -43,7 +44,7 @@ export default {
       tweetUser: {},
       description: '',
       createdAt: '',
-      
+      isProcessing: false
     }
   },
   methods: {
@@ -54,9 +55,33 @@ export default {
       this.description = description
       this.createdAt = createdAt
     },
+    async deleteCard(tweetId) {
+      try {
+        this.isProcessing = true
+        const { data, statusText } = await adminAPI.deleteTweet({ tweetId })
+        this.isProcessing = false
+        if (statusText !== "OK") throw new Error(data)
+        Toast.fire({
+          icon: 'success',
+          title: data.message
+        })
+        this.$emit('after-delete', tweetId)
+      } catch (error) {
+        Toast.fire({
+          icon: 'error',
+          title: '無法刪除貼文，請稍後再試'
+        })
+      }
+    }
   },
   created() {
     this.fetchTweetCard()
+  },
+  filters: {
+    wordLimit(text) {
+      return text.length > 50 ? 
+        text.substring(0, 49) + '...' : text
+    }
   }
 }
 </script>

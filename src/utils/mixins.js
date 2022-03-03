@@ -5,7 +5,7 @@ moment.locale('zh-tw');
 export const fromNowFilter = {
   filters: {
     fromNow(datetime) {
-      return datetime ? moment(datetime).startOf('hour').fromNow() : '-'
+      return datetime ? moment(datetime).startOf('minute').fromNow() : '-'
     }
   }
 }
